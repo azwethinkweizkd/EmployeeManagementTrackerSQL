@@ -1,0 +1,26 @@
+{
+  "name": "EmployeeManagementTrackerSQL",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.1.2",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azwethinkweizkd/EmployeeManagementTrackerSQL.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/azwethinkweizkd/EmployeeManagementTrackerSQL/issues"
+  },
+  "homepage": "https://github.com/azwethinkweizkd/EmployeeManagementTrackerSQL#readme"
+}
