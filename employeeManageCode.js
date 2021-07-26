@@ -17,8 +17,6 @@ connection.connect((err) => {
   userAction();
 });
 
-connection.query = util.promisify(connection.query);
-
 const userAction = () => {
   inquirer
     .prompt([
@@ -89,20 +87,46 @@ const addFunc = () => {
     });
 };
 
-const addDept = () => {
-  inquirer
-    .prompt([
+const addDept = async () => {
+  try {
+    const { name } = await inquirer.prompt([
       {
-        name: "department",
+        name: "name",
         type: "input",
         message: "What department would you like to add?",
       },
-    ])
-    .then((answer) => {
-      const query = "INSERT INTO department SET ?";
-      connection.query(query, answer.department, (err, res) => {
-        if (err) throw err;
-      });
-      userAction();
+    ]);
+    const query = "INSERT INTO department SET ?";
+    connection.query(query, name, (err, department) => {
+      if (err) throw err;
+      console.log("Department Added:", department);
+      connection.end();
     });
+  } catch (e) {
+    console.log(e);
+    connection.end();
+  }
 };
+
+// const addRole = () => {
+//   inquirer
+//     .prompt([
+//       {
+//         name: "role",
+//         type: "input",
+//         message: "What role would you like to add?",
+//       },
+//       {
+//         name: "salary",
+//         type: "input",
+//         message: "What is the salary for this role within your organization?",
+//       },
+//     ])
+//     .then((answer) => {
+//       const query = "INSERT INTO role SET ?";
+//       connection.query(query, answer.department, (err, res) => {
+//         if (err) throw err;
+//       });
+//       userAction();
+//     });
+// };
