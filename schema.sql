@@ -10,21 +10,26 @@ CREATE TABLE department (
 );
 
 CREATE TABLE role (
-    id INT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
-    salary DECIMAL(6,5) NOT NULL,
-    departmentid INT NOT NULL,
+    salary DECIMAL(50,2) NOT NULL,
+    departmentid INT,
     PRIMARY KEY (id),
     FOREIGN KEY (departmentid) REFERENCES department(id)
 );
 
 CREATE TABLE employee (
-    id INT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    role_id INT NOT NULL,
+    roleid INT NOT NULL,
     manageid INT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (manageid) REFERENCES employee(id)
+    FOREIGN KEY (manageid) REFERENCES employee(id),
+    FOREIGN KEY (roleid) REFERENCES role(id)
 );
 
+INSERT INTO role (title, salary)
+VALUES ("Engineer", 100000),
+("Lawyer", 120000),
+("Sales", 80000)

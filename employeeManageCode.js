@@ -92,8 +92,9 @@ const addDept = async () => {
     const { name } = await inquirer.prompt([
       {
         name: "name",
-        type: "input",
+        type: "list",
         message: "What department would you like to add?",
+        choices: ["Sales", "Engineering", "Legal", "Finance"],
       },
     ]);
     const query = "INSERT INTO department SET ?";
@@ -108,25 +109,65 @@ const addDept = async () => {
   }
 };
 
-// const addRole = () => {
-//   inquirer
-//     .prompt([
-//       {
-//         name: "role",
-//         type: "input",
-//         message: "What role would you like to add?",
-//       },
-//       {
-//         name: "salary",
-//         type: "input",
-//         message: "What is the salary for this role within your organization?",
-//       },
-//     ])
-//     .then((answer) => {
-//       const query = "INSERT INTO role SET ?";
-//       connection.query(query, answer.department, (err, res) => {
-//         if (err) throw err;
-//       });
-//       userAction();
-//     });
-// };
+const addRole = async () => {
+  try {
+    const { title, salary } = await inquirer.prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "What role would you like to add?",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "What is the salary for this role within your organization?",
+      },
+    ]);
+    const query = "INSERT INTO role SET ?";
+    connection.query(query, { title, salary }, (err, role) => {
+      if (err) throw err;
+      console.log("Role Added:", role);
+      connection.end();
+    });
+  } catch (e) {
+    console.log(e);
+    connection.end();
+  }
+};
+
+const addEmployee = () => {
+  connection.query("SELECT title FROM products", async (err, titles) => {
+    try {
+      const { title } = await inquirer.prompt([
+        {
+          name: "title",
+          type: "list",
+          message: "What is your employees role within your organization?",
+          choices: titles.map(({ title }) => title),
+        },
+      ]);
+      const { first_name, last_name } = await inquirer.prompt([
+        {
+          name: "first_name",
+          type: "input",
+          message: "What is your employees first name?",
+        },
+        {
+          name: "last_name",
+          type: "input",
+          message: "What is your employees last name?",
+        },
+      ]);
+
+      const query = "INSERT INTO employee SET ?";
+      connection.query(query, { first_name, last_name, title }, (err, role) => {
+        if (err) throw err;
+        console.log("Employee Added:", role);
+        connection.end();
+      });
+    } catch (e) {
+      console.log(e);
+      connection.end();
+    }
+  });
+};
