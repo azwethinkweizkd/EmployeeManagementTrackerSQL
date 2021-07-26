@@ -97,7 +97,7 @@ const addDept = async () => {
       },
     ]);
     const query = "INSERT INTO department SET ?";
-    connection.query(query, name, (err, department) => {
+    connection.query(query, { name }, (err, department) => {
       if (err) throw err;
       console.log("Department Added:", department);
       connection.end();
