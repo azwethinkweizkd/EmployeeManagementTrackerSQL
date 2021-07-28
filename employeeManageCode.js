@@ -220,10 +220,11 @@ const viewFunc = () => {
 
 const viewEmployees = () => {
   connection.query(
-    "SELECT employee.id, first_name, last_name, title, salary, department FROM employee JOIN role ON employee.id = role.id",
+    "SELECT employee.id, first_name, last_name, title, department.name, salary FROM employee LEFT JOIN role ON employee.roleid = role.id LEFT JOIN department ON role.departmentid = department.id",
     (err, employees) => {
       if (err) throw err;
       console.table(employees);
+      connection.end();
     }
   );
 };
