@@ -32,4 +32,7 @@ CREATE TABLE employee (
 INSERT INTO role (title, salary)
 VALUES ("Engineer", 100000),
 ("Lawyer", 120000),
-("Sales", 80000)
+("Sales", 80000);
+
+INSERT INTO employee (first_name, last_name, roleid, manageid)
+VALUES ("John", "Doe", 1, 1)

@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const cTable = require("console.table");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -27,8 +28,9 @@ const userAction = () => {
         choices: [
           "Add (Departments, roles, employees)",
           "View (Departments, roles, employees)",
-          "Delete (Departments, roles, employees)",
-          "View Budget of certain departments",
+          "Update (Roles, employees, employee manager)",
+          "Delete (Roles, employees)",
+          "View Budget of departments",
           "Exit",
         ],
       },
@@ -43,6 +45,9 @@ const userAction = () => {
           break;
         case "Delete (Departments, roles, employees)":
           deleteFunc();
+          break;
+        case "Update (Departments, roles, employees)":
+          updateFunc();
           break;
         case "View Budget of certain departments":
           viewBudgetFunc();
@@ -94,7 +99,7 @@ const addDept = async () => {
         name: "name",
         type: "list",
         message: "What department would you like to add?",
-        choices: ["Sales", "Engineering", "Legal", "Finance"],
+        choices: ["Sales", "Engineering", "Legal", "Finance", "HR"],
       },
     ]);
     const query = "INSERT INTO department SET ?";
@@ -136,16 +141,21 @@ const addRole = async () => {
 };
 
 const addEmployee = () => {
-  connection.query("SELECT title FROM products", async (err, titles) => {
+  connection.query("SELECT title, id FROM role", async (err, titles) => {
     try {
-      const { title } = await inquirer.prompt([
+      const { role } = await inquirer.prompt([
         {
-          name: "title",
+          name: "role",
           type: "list",
           message: "What is your employees role within your organization?",
           choices: titles.map(({ title }) => title),
         },
       ]);
+
+      const { id: roleid } = titles.find((title) => {
+        return title.title === role;
+      });
+      console.log(titles);
       const { first_name, last_name } = await inquirer.prompt([
         {
           name: "first_name",
@@ -158,16 +168,62 @@ const addEmployee = () => {
           message: "What is your employees last name?",
         },
       ]);
-
-      const query = "INSERT INTO employee SET ?";
-      connection.query(query, { first_name, last_name, title }, (err, role) => {
-        if (err) throw err;
-        console.log("Employee Added:", role);
-        connection.end();
-      });
+      const query =
+        "INSERT INTO employee (first_name, last_name, roleid) VALUES (?,?,?)";
+      connection.query(
+        query,
+        [first_name, last_name, roleid],
+        (err, employee) => {
+          if (err) throw err;
+          console.log("Employee Added:", employee);
+          connection.end();
+        }
+      );
     } catch (e) {
       console.log(e);
       connection.end();
     }
   });
+};
+
+const viewFunc = () => {
+  inquirer
+    .prompt([
+      {
+        name: "view",
+        type: "list",
+        message: "What would you like to view?",
+        choices: [
+          "View All Employees",
+          "View All Employees by Manager",
+          "View All Employees by Department",
+        ],
+      },
+    ])
+    .then((answer) => {
+      switch (answer.view) {
+        case "View All Employees":
+          viewEmployees();
+          break;
+        case "View All Employees by Manager":
+          viewByManager();
+          break;
+        case "View All Employees by Department":
+          viewDept();
+          break;
+        default:
+          console.log(`Invalid Selection: ${answer.view}`);
+          break;
+      }
+    });
+};
+
+const viewEmployees = () => {
+  connection.query(
+    "SELECT employee.id, first_name, last_name, title, salary, department FROM employee JOIN role ON employee.id = role.id",
+    (err, employees) => {
+      if (err) throw err;
+      console.table(employees);
+    }
+  );
 };
