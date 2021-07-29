@@ -29,8 +29,8 @@ const userAction = () => {
           "Add (Departments, roles, employees)",
           "View (Departments, roles, employees)",
           "Update (Roles, employees, employee manager)",
-          "Delete (Roles, employees)",
-          "View Budget of departments",
+          "Delete (Department, Roles, employees)",
+          "View Budget of certain departments",
           "Exit",
         ],
       },
@@ -43,7 +43,7 @@ const userAction = () => {
         case "View (Departments, roles, employees)":
           viewFunc();
           break;
-        case "Delete (Departments, roles, employees)":
+        case "Delete (Department, Roles, employees)":
           deleteFunc();
           break;
         case "Update (Departments, roles, employees)":
@@ -59,6 +59,7 @@ const userAction = () => {
           console.log(
             `Invalid action: ${answer.action}. Please make another selection`
           );
+          userAction();
           break;
       }
     });
@@ -106,42 +107,67 @@ const addDept = async () => {
     connection.query(query, { name }, (err, department) => {
       if (err) throw err;
       console.log("Department Added:", department);
-      connection.end();
+      userAction();
     });
   } catch (e) {
     console.log(e);
-    connection.end();
+    userAction();
   }
 };
 
-const addRole = async () => {
-  try {
-    const { title, salary } = await inquirer.prompt([
-      {
-        name: "title",
-        type: "input",
-        message: "What role would you like to add?",
-      },
-      {
-        name: "salary",
-        type: "input",
-        message: "What is the salary for this role within your organization?",
-      },
-    ]);
-    const query = "INSERT INTO role SET ?";
-    connection.query(query, { title, salary }, (err, role) => {
-      if (err) throw err;
-      console.log("Role Added:", role);
-      connection.end();
-    });
-  } catch (e) {
-    console.log(e);
-    connection.end();
-  }
+const addRole = () => {
+  connection.query(
+    "SELECT id, name FROM department",
+    async (err, departments) => {
+      try {
+        const { department } = await inquirer.prompt([
+          {
+            message: "What department will this role be in?",
+            name: "department",
+            type: "list",
+            choices: departments.map(({ name }) => name),
+          },
+        ]);
+
+        const { id: departmentid } = departments.find((name) => {
+          return name.name === department;
+        });
+
+        const { title, salary } = await inquirer.prompt([
+          {
+            name: "title",
+            type: "input",
+            message: "What role would you like to add?",
+          },
+          {
+            name: "salary",
+            type: "input",
+            message:
+              "What is the salary for this role within your organization?",
+          },
+        ]);
+
+        const query = "INSERT INTO role SET ?";
+        connection.query(
+          query,
+          { title, salary, departmentid },
+          (err, role) => {
+            if (err) throw err;
+            console.log("Role Added:", role);
+            userAction();
+          }
+        );
+      } catch (e) {
+        console.log(e);
+        userAction();
+      }
+    }
+  );
 };
 
 const addEmployee = () => {
   connection.query("SELECT title, id FROM role", async (err, titles) => {
+    if (err) throw err;
     try {
       const { role } = await inquirer.prompt([
         {
@@ -156,6 +182,7 @@ const addEmployee = () => {
         return title.title === role;
       });
       console.log(titles);
+      console.log(roleid);
       const { first_name, last_name } = await inquirer.prompt([
         {
           name: "first_name",
@@ -176,12 +203,12 @@ const addEmployee = () => {
         (err, employee) => {
           if (err) throw err;
           console.log("Employee Added:", employee);
-          connection.end();
+          userAction();
         }
       );
     } catch (e) {
       console.log(e);
-      connection.end();
+      userAction();
     }
   });
 };
@@ -224,7 +251,183 @@ const viewEmployees = () => {
     (err, employees) => {
       if (err) throw err;
       console.table(employees);
-      connection.end();
+      userAction();
     }
   );
 };
+
+const viewByManager = () => {};
+
+const viewDept = () => {
+  connection.query("SELECT name FROM department", async (err, departments) => {
+    if (err) throw err;
+    try {
+      const { name } = await inquirer.prompt([
+        {
+          message: "Which departments staff would you like to view?",
+          name: "name",
+          type: "list",
+          choices: departments.map(({ name }) => name),
+        },
+      ]);
+
+      const query =
+        "SELECT employee.id, first_name, last_name, title, ? FROM employee LEFT JOIN role ON employee.roleid = role.id LEFT JOIN department ON role.departmentid = department.id WHERE name = ?";
+
+      connection.query(query, [name, name], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        userAction();
+      });
+    } catch (e) {
+      console.log(e);
+      userAction();
+    }
+  });
+};
+
+const deleteFunc = () => {
+  inquirer
+    .prompt([
+      {
+        name: "delete",
+        type: "list",
+        message: "What would you like to delete?",
+        choices: ["Delete Employee", "Delete Role", "Delete Department"],
+      },
+    ])
+    .then((answer) => {
+      switch (answer.delete) {
+        case "Delete Employee":
+          delEmployee();
+          break;
+        case "Delete Role":
+          delRole();
+          break;
+        case "Delete Department":
+          delDept();
+          break;
+        default:
+          console.log(`Invalid Selection: ${answer.view}`);
+          break;
+      }
+    });
+};
+
+const delEmployee = () => {
+  connection.query("SELECT * FROM employee", async (err, employees) => {
+    if (err) throw err;
+    try {
+      const employeeToDelete = await inquirer.prompt([
+        {
+          message: "Which employee would you like to delete?",
+          name: "employee",
+          type: "list",
+          choices: employees.map(
+            (employee) => employee.first_name + " " + employee.last_name
+          ),
+        },
+      ]);
+      connection.query(
+        "DELETE FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) = ?",
+        employeeToDelete.employee,
+        (err, employee) => {
+          if (err) throw err;
+          console.log("Employee Deleted:", employee);
+          userAction();
+        }
+      );
+    } catch (e) {
+      console.log(e);
+      connection.end();
+    }
+  });
+};
+
+const delRole = () => {
+  connection.query("SELECT * FROM role", async (err, roles) => {
+    if (err) throw err;
+
+    try {
+      const { role } = await inquirer.prompt([
+        {
+          message: "Which role would you like to delete?",
+          name: "title",
+          type: "list",
+          choices: roles.map(({ title }) => title),
+        },
+      ]);
+      connection.query(
+        "DELETE FROM role WHERE title = ?",
+        role,
+        (err, role) => {
+          if (err) throw err;
+          console.log("Role Deleted:", role);
+          userAction();
+        }
+      );
+    } catch (e) {
+      console.log(e);
+      connection.end();
+    }
+  });
+};
+
+const delDept = () => {
+  connection.query("SELECT * FROM department", async (err, departments) => {
+    if (err) throw err;
+
+    try {
+      const { department } = await inquirer.prompt([
+        {
+          message: "Which department would you like to delete?",
+          name: "name",
+          type: "list",
+          choices: departments.map(({ name }) => name),
+        },
+      ]);
+      connection.query(
+        "DELETE FROM role WHERE title = ?",
+        department,
+        (err, department) => {
+          if (err) throw err;
+          console.log("department Deleted:", department);
+          userAction();
+        }
+      );
+    } catch (e) {
+      console.log(e);
+      connection.end();
+    }
+  });
+};
+
+const viewBudgetFunc = () => {
+  connection.query("SELECT name FROM department", async (err, departments) => {
+    if (err) throw err;
+    try {
+      const { name } = await inquirer.prompt([
+        {
+          message: "Which departments staff would you like to view?",
+          name: "name",
+          type: "list",
+          choices: departments.map(({ name }) => name),
+        },
+      ]);
+
+      const query =
+        "SELECT ? AS department_name, SUM(salary) AS department_budget FROM department INNER JOIN role ON role.departmentid = department.id";
+
+      connection.query(query, [name], (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        userAction();
+      });
+    } catch (e) {
+      console.log(e);
+      userAction();
+    }
+  });
+};
+
+// "SELECT employee.id, first_name, last_name, title, ? FROM employee LEFT JOIN role ON employee.roleid = role.id LEFT JOIN department ON role.departmentid = department.id WHERE name = ?"

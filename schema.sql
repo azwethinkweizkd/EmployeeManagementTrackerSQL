@@ -23,7 +23,7 @@ CREATE TABLE employee (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     roleid INT,
-    manageid INT NULL,
+    manageid INT,
     PRIMARY KEY (id),
     FOREIGN KEY (manageid) REFERENCES employee(id),
     FOREIGN KEY (roleid) REFERENCES role(id)
@@ -34,16 +34,32 @@ VALUES ('Engineering'),
 ("Legal"),
 ("Sales Team");
 
-INSERT INTO role (title, salary)
-VALUES ("Engineer", 100000),
-("Lawyer", 120000),
-("Sales", 80000);
+SELECT * FROM department;
+
+INSERT INTO role (title, salary, departmentid)
+VALUES ("Engineer", 100000, 1),
+("Lawyer", 120000, 2),
+("Sales", 80000, 3),
+("Manager", 95000, 1);
+
+SELECT title, name FROM role
+LEFT JOIN department
+ON role.departmentid = department.id
+WHERE name = "Engineering";
+
+SELECT * FROM role;
 
 INSERT INTO employee (first_name, last_name, roleid, manageid)
-VALUES ("John", "Doe", 2, 1);
+VALUES ("Jane", "Doe", 4, null),
+("John", "Doe", 1, 1),
+
+("Adam", "Warlock", 2, null);
+
+SELECT * FROM employee;
+
 
 SELECT employee.id, first_name, last_name, title, department.name, salary FROM employee 
 LEFT JOIN role 
 ON employee.roleid = role.id 
 LEFT JOIN department 
-ON role.departmentid = department.id
+ON role.departmentid = department.id;
