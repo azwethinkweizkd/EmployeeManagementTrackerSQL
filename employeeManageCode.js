@@ -28,7 +28,7 @@ const userAction = () => {
         choices: [
           "Add (Departments, roles, employees)",
           "View (Departments, roles, employees)",
-          "Update (Roles, employees, employee manager)",
+          "Update (Roles, employee manager)",
           "Delete (Department, Roles, employees)",
           "View Budget of certain departments",
           "Exit",
@@ -46,7 +46,7 @@ const userAction = () => {
         case "Delete (Department, Roles, employees)":
           deleteFunc();
           break;
-        case "Update (Departments, roles, employees)":
+        case "Update (Roles, employee manager)":
           updateFunc();
           break;
         case "View Budget of certain departments":
@@ -378,7 +378,7 @@ const delDept = () => {
     if (err) throw err;
 
     try {
-      const { department } = await inquirer.prompt([
+      const { name } = await inquirer.prompt([
         {
           message: "Which department would you like to delete?",
           name: "name",
@@ -386,12 +386,13 @@ const delDept = () => {
           choices: departments.map(({ name }) => name),
         },
       ]);
+      console.log(name);
       connection.query(
         "DELETE FROM role WHERE title = ?",
-        department,
+        name,
         (err, department) => {
           if (err) throw err;
-          console.log("department Deleted:", department);
+          console.log("Department Deleted:", department);
           userAction();
         }
       );
@@ -416,7 +417,7 @@ const viewBudgetFunc = () => {
       ]);
 
       const query =
-        "SELECT ? AS department_name, SUM(salary) AS department_budget FROM department INNER JOIN role ON role.departmentid = department.id";
+        "SELECT ? AS department_name, SUM(salary) AS department_budget FROM department RIGHT JOIN role ON role.departmentid = department.id RIGHT JOIN employee ON employee.roleid = role.id";
 
       connection.query(query, [name], (err, res) => {
         if (err) throw err;
@@ -430,4 +431,69 @@ const viewBudgetFunc = () => {
   });
 };
 
-// "SELECT employee.id, first_name, last_name, title, ? FROM employee LEFT JOIN role ON employee.roleid = role.id LEFT JOIN department ON role.departmentid = department.id WHERE name = ?"
+const updateFunc = () => {
+  inquirer
+    .prompt([
+      {
+        name: "toUpdate",
+        type: "list",
+        message:
+          "What would you like to Update? (Employee Role, Employee Manager)",
+        choices: ["Employee Role", "Employee Manager"],
+      },
+    ])
+    .then((answer) => {
+      switch (answer.toUpdate) {
+        case "Employee Role":
+          updateRole();
+          break;
+        case "Employee Manager":
+          updateManager();
+          break;
+        default:
+          console.log(`Invalid Selection: ${answer.toAdd}`);
+          break;
+      }
+    });
+};
+
+const updateRole = async () => {
+  connection.query(
+    "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS employee FROM employee",
+    (err, employees) => {
+      if (err) throw err;
+      inquirer
+        .prompt([
+          {
+            message: "Which employee would you like to update?",
+            name: "employee",
+            type: "list",
+            choices: employees.map(({ employee }) => employee),
+          },
+        ])
+        .then(function (res) {
+          connection.query("SELECT * FROM role", (err, roles) => {
+            if (err) throw err;
+            inquirer.prompt([
+              {
+                message:
+                  "Which role would you like to update the employee to? (Make sure to add the new role before selecting a new role for your employee",
+                name: "title",
+                type: "list",
+                choices: roles.map(({ title }) => title),
+              },
+            ]);
+            const newRole = roles.find((role) => role.title === res.title);
+
+            connection.query(
+              "UPDATE employee SET role_id = ? CONCAT(employee.first_name, ' ', employee.last_name) = ?",
+              [newRole.id, employee],
+              (err, result) => {
+                if (err) throw err;
+              }
+            );
+          });
+        });
+    }
+  );
+};

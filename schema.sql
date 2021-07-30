@@ -63,3 +63,5 @@ LEFT JOIN role
 ON employee.roleid = role.id 
 LEFT JOIN department 
 ON role.departmentid = department.id;
+
+
