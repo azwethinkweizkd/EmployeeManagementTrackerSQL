@@ -98,9 +98,8 @@ const addDept = async () => {
     const { name } = await inquirer.prompt([
       {
         name: "name",
-        type: "list",
+        type: "input",
         message: "What department would you like to add?",
-        choices: ["Sales", "Engineering", "Legal", "Finance", "HR"],
       },
     ]);
     const query = "INSERT INTO department SET ?";
@@ -119,6 +118,7 @@ const addRole = () => {
   connection.query(
     "SELECT id, name FROM department",
     async (err, departments) => {
+      if (err) throw err;
       try {
         const { department } = await inquirer.prompt([
           {
