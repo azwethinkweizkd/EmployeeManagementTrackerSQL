@@ -105,7 +105,7 @@ const addDept = async () => {
     const query = "INSERT INTO department SET ?";
     connection.query(query, { name }, (err, department) => {
       if (err) throw err;
-      console.log("Department Added:", department);
+      console.log("Department Added");
       userAction();
     });
   } catch (e) {
@@ -153,7 +153,7 @@ const addRole = () => {
           { title, salary, departmentid },
           (err, role) => {
             if (err) throw err;
-            console.log("Role Added:", role);
+            console.log("Role Added");
             userAction();
           }
         );
@@ -202,7 +202,7 @@ const addEmployee = () => {
         [first_name, last_name, roleid],
         (err, employee) => {
           if (err) throw err;
-          console.log("Employee Added:", employee);
+          console.log("Employee Added!");
           userAction();
         }
       );
@@ -333,7 +333,7 @@ const delEmployee = () => {
         employeeToDelete.employee,
         (err, employee) => {
           if (err) throw err;
-          console.log("Employee Deleted:", employee);
+          console.log("Employee Deleted");
           userAction();
         }
       );
@@ -363,7 +363,7 @@ const delRole = () => {
         roleToDelete.title,
         (err, role) => {
           if (err) throw err;
-          console.log("Role Deleted:", role);
+          console.log("Role Deleted");
           userAction();
         }
       );
@@ -393,7 +393,7 @@ const delDept = () => {
         deptToDelete.name,
         (err, department) => {
           if (err) throw err;
-          console.log("Department Deleted:", department);
+          console.log("Department Deleted");
           userAction();
         }
       );
@@ -493,7 +493,7 @@ const updateRole = async () => {
                   [newRole.id, employee],
                   (err, role) => {
                     if (err) throw err;
-                    console.log("Role Updated:", role);
+                    console.log("Employee Role Updated");
                     userAction();
                   }
                 );
