@@ -2,7 +2,7 @@
 
 ## Description
 
-This application will help you create an HTML page on the fly within the command line! Quickly assemble an html page with information gathered to display your current team on a web page with working links. A manager of a project can assemble and gather information of their team from Engineers and Interns with just a few simple questions from the command line.
+Create and store information about your organization with this application. Answer a few questions to build your database with all the information you need about the departments, the employees in that department and the roles they have within your organization. There are features of this application allow you to view your database with the current information stored, as well as delete or update information that you see fit.
 
 ## Table of Contents
 
@@ -14,25 +14,19 @@ This application will help you create an HTML page on the fly within the command
 
 ## Installation
 
-Installation of this application will require one to transfer all files (JS & json) to a working directory on their computer. As well as the ability to acces the computer terminal, either through GitBash or VSCode. This applcation can be found on this GitHub repository:
+Installation of this application will require one to transfer all files (JS & json) to a working directory on their computer. As well as the ability to acces the computer terminal, either through GitBash, VSCode, or Windows Powershell. This applcation can be found on this GitHub repository:
 
-[ProfileGeneratorforTeamsApp-GitHub Repository](https://github.com/azwethinkweizkd/ProfileGeneratorforTeams)
+[EmployeeManagementTrackerSQL-GitHub Repository](https://github.com/azwethinkweizkd/EmployeeManagementTrackerSQL)
 
-Once files have been save into a working directory a one more step will need to take place, and that is to install node_modules. The node_modules will include two important installation packages which are: inquirer & jest.
+Once files have been save into a working directory a one more step will need to take place, and that is to install node_modules. The node_modules will include three important installation packages which are: inquirer, console.table, & mysql.
 
 To install the node_modules properly one will need to type in the terminal under the current working directory for the application:
 
 ```bash
-npm i inquirer
+npm i
 ```
 
-and to install jest properly type this command into the terminal:
-
-```bash
-npm i jest
-```
-
-These two node_modules will be resposible for asking the questions in the command line (inquirer) and testing the js files (jest).
+Doing this will make sure that all node_modules that were used to create this application are installed on your machine
 
 Make sure that you are in the directory that these JS & json files have been saved to. Otherwise you will be installing the node_modules to the wrong directory, and thus will not allow the appliation to work.
 
@@ -41,16 +35,16 @@ To use this application successfully, locate the current directory that the appl
 From there type:
 
 ```bash
-node index
+mpm start
 ```
 
-You will then be asked a series of questions pertaining to what information you would like to populate to your new _index.html_. Only one manager can be entered at the very beginning of the initialization of the application. Once the manager is filled out with the proper infomation, two different employee roles can be selected to add to the growing team. The user can choose to pick an Engineer or an Intern. You can choose how ever many Engineers or Interns you want to populate your team with their pertainate information, and when finished adding all the new team members you can choose to exit the applicaiton which will exit the command line application and generate the desired HTML. Every HTML saved will always have a standard name of _index.html_, and saved in the directory called _dist_ located within the cloned repository.
+You will then be asked a series of questions pertaining to what information you would like to populate into your SQL database. Begin by populating the departs you will have in your company, followed by the roles within that department, and finally the employees you hire to fill those roles. If the employee leaves the company or changes position within the company there are options to do that as well. Currently some functions (View Employee by Manager and View Budget of Departments) are not fully operational but will be with further versions of the application.
 
 ## Usage
 
-Get your team assembled fast and simple! Use this application to display your employees roles and information to an HTML page in a few quick and easy steps. The main function will be to setup an HTML page with one manager and unlimited amount of either Engineers or Interns, based off the selections made within the command line.
+Get your blossoming organization assembled fast and simple! Use this application to store information about your companies departments, employees, and their roles. See below for an operational video to help get started:
 
-![Team Profile Generator Application](assets/gif/applicationScreenshot.gif)
+![EmployeeManagementTrackerSQL](assets/gif/applicationScreenshot.gif)
 
 ## Contribution
 

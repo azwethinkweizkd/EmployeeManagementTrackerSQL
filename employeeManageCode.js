@@ -347,9 +347,9 @@ const delEmployee = () => {
 const delRole = () => {
   connection.query("SELECT * FROM role", async (err, roles) => {
     if (err) throw err;
-
+    console.log(roles);
     try {
-      const { role } = await inquirer.prompt([
+      const roleToDelete = await inquirer.prompt([
         {
           message: "Which role would you like to delete?",
           name: "title",
@@ -357,9 +357,10 @@ const delRole = () => {
           choices: roles.map(({ title }) => title),
         },
       ]);
+      console.log(roleToDelete);
       connection.query(
         "DELETE FROM role WHERE title = ?",
-        role,
+        roleToDelete.title,
         (err, role) => {
           if (err) throw err;
           console.log("Role Deleted:", role);
@@ -378,7 +379,7 @@ const delDept = () => {
     if (err) throw err;
 
     try {
-      const { name } = await inquirer.prompt([
+      const deptToDelete = await inquirer.prompt([
         {
           message: "Which department would you like to delete?",
           name: "name",
@@ -389,7 +390,7 @@ const delDept = () => {
       console.log(name);
       connection.query(
         "DELETE FROM role WHERE title = ?",
-        name,
+        deptToDelete.name,
         (err, department) => {
           if (err) throw err;
           console.log("Department Deleted:", department);
@@ -459,7 +460,7 @@ const updateFunc = () => {
 
 const updateRole = async () => {
   connection.query(
-    "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS employee FROM employee",
+    "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS employee, id FROM employee",
     (err, employees) => {
       if (err) throw err;
       inquirer
@@ -474,24 +475,29 @@ const updateRole = async () => {
         .then(function (res) {
           connection.query("SELECT * FROM role", (err, roles) => {
             if (err) throw err;
-            inquirer.prompt([
-              {
-                message:
-                  "Which role would you like to update the employee to? (Make sure to add the new role before selecting a new role for your employee",
-                name: "title",
-                type: "list",
-                choices: roles.map(({ title }) => title),
-              },
-            ]);
-            const newRole = roles.find((role) => role.title === res.title);
-
-            connection.query(
-              "UPDATE employee SET role_id = ? CONCAT(employee.first_name, ' ', employee.last_name) = ?",
-              [newRole.id, employee],
-              (err, result) => {
-                if (err) throw err;
-              }
-            );
+            inquirer
+              .prompt([
+                {
+                  message:
+                    "Which role would you like to update the employee to? (Make sure to add the new role before selecting a new role for your employee)",
+                  name: "title",
+                  type: "list",
+                  choices: roles.map(({ title }) => title),
+                },
+              ])
+              .then(function (rol) {
+                const newRole = roles.find((role) => role.title === rol.title);
+                const { employee } = res;
+                connection.query(
+                  "UPDATE employee SET roleid = ? WHERE CONCAT(employee.first_name, ' ', employee.last_name) = ?",
+                  [newRole.id, employee],
+                  (err, role) => {
+                    if (err) throw err;
+                    console.log("Role Updated:", role);
+                    userAction();
+                  }
+                );
+              });
           });
         });
     }
