@@ -181,8 +181,6 @@ const addEmployee = () => {
       const { id: roleid } = titles.find((title) => {
         return title.title === role;
       });
-      console.log(titles);
-      console.log(roleid);
       const { first_name, last_name } = await inquirer.prompt([
         {
           name: "first_name",
@@ -345,22 +343,21 @@ const delEmployee = () => {
 };
 
 const delRole = () => {
-  connection.query("SELECT * FROM role", async (err, roles) => {
+  connection.query("SELECT title, id FROM role", async (err, titles) => {
     if (err) throw err;
-    console.log(roles);
     try {
-      const roleToDelete = await inquirer.prompt([
+      const { role } = await inquirer.prompt([
         {
-          message: "Which role would you like to delete?",
-          name: "title",
+          name: "role",
           type: "list",
-          choices: roles.map(({ title }) => title),
+          message: "What is your employees role within your organization?",
+          choices: titles.map(({ title }) => title),
         },
       ]);
-      console.log(roleToDelete);
+
       connection.query(
         "DELETE FROM role WHERE title = ?",
-        roleToDelete.title,
+        role,
         (err, role) => {
           if (err) throw err;
           console.log("Role Deleted");
@@ -387,7 +384,6 @@ const delDept = () => {
           choices: departments.map(({ name }) => name),
         },
       ]);
-      console.log(name);
       connection.query(
         "DELETE FROM role WHERE title = ?",
         deptToDelete.name,
