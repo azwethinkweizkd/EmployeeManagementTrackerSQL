@@ -44,7 +44,7 @@ You will then be asked a series of questions pertaining to what information you 
 
 Get your blossoming organization assembled fast and simple! Use this application to store information about your companies departments, employees, and their roles. See below for an operational video to help get started:
 
-![EmployeeManagementTrackerSQL](assets/gif/12-SQL-screenshot)
+![EmployeeManagementTrackerSQL](assets/gif/12-SQL-screenshot.gif)
 
 ## Contribution
 
